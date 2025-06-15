@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Attendance Website</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #4895ef;
+      --dark-color: #1a237e;
+      --light-color: #f8f9fa;
+      --success-color: #4cc9f0;
+      --danger-color: #f72585;
+      --warning-color: #f8961e;
+    }
+    
+    body {
+      background-image: linear-gradient(135deg, rgba(13, 71, 161, 0.04) 0%, rgba(255, 111, 0, 0.04) 100%),
+                        url("{{ url_for('static', filename='1.png') }}");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      min-height: 100vh;
+      color: #212529;
+      line-height: 1.6;
+    }
+
+    .header {
+      background: none; 
+      color: #212529;    
+      padding: 20px 0;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+      box-shadow: none; 
+    }
+
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1), transparent);
+    }
+    
+    .site-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    
+    .auth-container {
+      max-width: 450px;
+      margin: 40px auto;
+      padding: 40px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+    }
+    
+    .auth-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .auth-title {
+      color: var(--dark-color);
+      margin-bottom: 30px;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .auth-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+      border-radius: 3px;
+    }
+    
+    .form-control {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px 15px;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+      height: 45px; /* C? d?nh chi?u cao */
+    }
+    
+    .form-control:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    
+    /* S?a l?i can ch?nh icon */
+    .input-group {
+      height: 45px; 
+      margin-bottom: 20px;
+    }
+    
+    .input-group-text {
+      background-color: transparent;
+      border-right: none;
+      width: 45px; /* C? d?nh chi?u r?ng */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 45px; /* C? d?nh chi?u cao */
+    }
+    
+    .input-with-icon {
+      border-left: none;
+    }
+    
+    .btn-auth {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-auth:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    }
+    
+    .btn-auth:active {
+      transform: translateY(0);
+    }
+    
+    .auth-footer {
+      margin-top: 20px;
+      font-size: 0.95rem;
+      color: #666;
+    }
+    
+    .auth-link {
+      color: var(--primary-color);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .auth-link:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+    
+    .error-message {
+      color: var(--danger-color);
+      font-size: 0.9rem;
+      margin-top: -15px;
+      margin-bottom: 15px;
+      display: block;
+      opacity: 0;
+      height: 0;
+      transition: all 0.3s;
+    }
+    
+    .error-message.show {
+      opacity: 1;
+      height: auto;
+    }
+    
+    .hidden {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .visible {
+      display: block;
+      animation: fadeInUp 0.5s forwards;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .floating-shapes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(67, 97, 238, 0.1);
+      animation: float 15s infinite linear;
+    }
+    
+    .shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      top: 20%;
+      left: 10%;
+    }
+    
+    .shape:nth-child(2) {
+      width: 150px;
+      height: 150px;
+      top: 60%;
+      left: 80%;
+    }
+    
+    .shape:nth-child(3) {
+      width: 200px;
+      height: 200px;
+      top: 30%;
+      left: 60%;
+    }
+    
+    .shape:nth-child(4) {
+      width: 80px;
+      height: 80px;
+      top: 80%;
+      left: 20%;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-20px) rotate(180deg);
+      }
+      100% {
+        transform: translateY(0) rotate(360deg);
+      }
+    }
+    
+
+    .section-title {
+      margin-top: 25px;
+      margin-bottom: 15px;
+      position: relative;
+      padding-left: 15px;
+      font-weight: 600;
+      color: var(--dark-color);
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 20px;
+      width: 5px;
+      background: var(--primary-color);
+      border-radius: 3px;
+    }
+    
+    @media (max-width: 576px) {
+      .auth-container {
+        padding: 30px 20px;
+        margin: 20px 15px;
+      }
+      
+      .site-title {
+        font-size: 1.8rem;
+      }
+      
+      .input-group-text {
+        width: 42px; 
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+  
+  <div class="header">
+    <span class="site-title">ATTENDANCE SYSTEM</span>
+  </div>
+
+  <!-- Login Form -->
+  <div class="auth-container visible" id="login-form-container">
+    <h2 class="auth-title text-center"><i class="fas fa-sign-in-alt me-2"></i>SYSTEM LOGIN</h2>
+    <form id="login-form">
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-user"></i></span>
+        <input type="text" name="username" class="form-control input-with-icon" placeholder="Username" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+        <input type="password" name="password" class="form-control input-with-icon" placeholder="Password" required />
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="remember-me">
+          <label class="form-check-label" for="remember-me">Remember me</label>
+        </div>
+        <a href="#" class="text-decoration-none" style="color: var(--primary-color);">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-auth btn-primary w-100 mb-3">
+        <i class="fas fa-sign-in-alt me-2"></i>LOGIN
+      </button>
+      <div class="error-message" id="login-error"></div>
+      <p class="auth-footer text-center">Don't have an account? <a href="#" id="switch-to-register" class="auth-link">Register now</a></p>
+    </form>
+  </div>
+
+  <!-- Register Form -->
+  <div class="auth-container hidden" id="register-form-container">
+    <h2 class="auth-title text-center"><i class="fas fa-user-plus me-2"></i>CREATE ACCOUNT</h2>
+    <form id="register-form">
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+        <input type="text" name="full_name" class="form-control input-with-icon" placeholder="Full Name" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+        <input type="email" name="email" class="form-control input-with-icon" placeholder="Email" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-user"></i></span>
+        <input type="text" name="username" class="form-control input-with-icon" placeholder="Username" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+        <input type="password" name="password" class="form-control input-with-icon" placeholder="Password" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+        <input type="password" name="confirm_password" class="form-control input-with-icon" placeholder="Confirm Password" required />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-key"></i></span>
+        <input type="text" name="instructor_code" class="form-control input-with-icon" placeholder="Instructor Code" required />
+      </div>
+      
+      <h5 class="section-title"><i class="fas fa-graduation-cap me-2"></i>Student Information</h5>
+      
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
+        <input type="text" name="mssv" class="form-control input-with-icon" placeholder="Student ID (MSSV)" />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-building"></i></span>
+        <input type="text" name="khoa" class="form-control input-with-icon" placeholder="Department (Khoa)" />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-users"></i></span>
+        <input type="text" name="lop" class="form-control input-with-icon" placeholder="Class (L?p)" />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-image"></i></span>
+        <input type="text" name="avatar_url" class="form-control input-with-icon" placeholder="Avatar URL (optional)" />
+      </div>
+      
+      <button type="submit" class="btn btn-auth btn-success w-100 mb-3">
+        <i class="fas fa-user-plus me-2"></i>REGISTER
+      </button>
+      <div class="error-message" id="register-error"></div>
+      <p class="auth-footer text-center">Already have an account? <a href="#" id="switch-to-login" class="auth-link">Login here</a></p>
+    </form>
+  </div>
+
+  <script>
+    // Toggle between login and register forms with animation
+    function showLogin() {
+      const loginForm = document.getElementById('login-form-container');
+      const registerForm = document.getElementById('register-form-container');
+      
+      registerForm.classList.remove('visible');
+      registerForm.classList.add('hidden');
+      
+      setTimeout(() => {
+        loginForm.classList.remove('hidden');
+        loginForm.classList.add('visible');
+      }, 300);
+    }
+
+    function showRegister() {
+      const loginForm = document.getElementById('login-form-container');
+      const registerForm = document.getElementById('register-form-container');
+      
+      loginForm.classList.remove('visible');
+      loginForm.classList.add('hidden');
+      
+      setTimeout(() => {
+        registerForm.classList.remove('hidden');
+        registerForm.classList.add('visible');
+      }, 300);
+    }
+
+    document.getElementById('switch-to-register').addEventListener('click', function (e) {
+      e.preventDefault();
+      showRegister();
+    });
+
+    document.getElementById('switch-to-login').addEventListener('click', function (e) {
+      e.preventDefault();
+      showLogin();
+    });
+
+    // Form validation and submission
+    document.getElementById('login-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const username = form.username.value;
+      const password = form.password.value;
+      const errorElement = document.getElementById('login-error');
+
+      // Simple validation
+      if (!username || !password) {
+        errorElement.textContent = 'Please fill in all fields';
+        errorElement.classList.add('show');
+        return;
+      }
+
+      // Simulate API call
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Show success state
+            errorElement.classList.remove('show');
+            window.location.href = data.redirect;
+          } else {
+            errorElement.textContent = data.message || 'Invalid credentials';
+            errorElement.classList.add('show');
+          }
+        })
+        .catch(() => {
+          errorElement.textContent = 'Login failed. Please try again.';
+          errorElement.classList.add('show');
+        });
+    });
+
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const errorElement = document.getElementById('register-error');
+      
+      const data = {
+        full_name: form.full_name.value,
+        email: form.email.value,
+        username: form.username.value,
+        password: form.password.value,
+        confirm_password: form.confirm_password.value,
+        instructor_code: form.instructor_code.value,
+        mssv: form.mssv.value,
+        khoa: form.khoa.value,
+        lop: form.lop.value,
+        avatar_url: form.avatar_url.value
+      };
+
+      // Validation
+      if (data.password !== data.confirm_password) {
+        errorElement.textContent = "Passwords do not match.";
+        errorElement.classList.add('show');
+        return;
+      }
+
+      if (data.password.length < 6) {
+        errorElement.textContent = "Password must be at least 6 characters.";
+        errorElement.classList.add('show');
+        return;
+      }
+
+      // Simulate API call
+      fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            errorElement.classList.remove('show');
+            alert("Registration successful. Please log in.");
+            showLogin();
+          } else {
+            errorElement.textContent = data.message || "Registration failed.";
+            errorElement.classList.add('show');
+          }
+        })
+        .catch(() => {
+          errorElement.textContent = "Registration failed. Please try again.";
+          errorElement.classList.add('show');
+        });
+    });
+
+    // Add input validation feedback
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        if (this.checkValidity()) {
+          this.classList.remove('is-invalid');
+          this.classList.add('is-valid');
+        } else {
+          this.classList.remove('is-valid');
+          this.classList.add('is-invalid');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

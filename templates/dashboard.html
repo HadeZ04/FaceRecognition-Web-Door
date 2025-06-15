@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Attendance</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #0d47a1;
+      --primary-light: #5472d3;
+      --primary-dark: #002171;
+      --accent: #ff6f00;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --light: #f5f7fa;
+      --dark: #263238;
+      --gray: #78909c;
+      --border-radius: 12px;
+      --box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-image: linear-gradient(135deg, rgba(13, 71, 161, 0.04) 0%, rgba(255, 111, 0, 0.04) 100%),
+                        url("{{ url_for('static', filename='1.png') }}");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      min-height: 100vh;
+      color: #212529;
+      line-height: 1.6;
+    }
+
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255, 255, 255, 0.7); /* L?p ph? tr?ng v?i d? m? 70% */
+      z-index: -1;
+    }
+        
+    .header {
+      background: none; 
+      color: #212529;    
+      padding: 20px 0;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 2.4rem;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+      box-shadow: none; 
+    }
+
+
+    
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
+      z-index: 0;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .header i {
+      margin-right: 15px;
+      vertical-align: middle;
+    }
+    
+    .container-main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+      border-left: 4px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      opacity: 0;
+      transition: var(--transition);
+    }
+    
+    .stat-card:hover::after {
+      opacity: 1;
+    }
+    
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+      opacity: 0.8;
+    }
+    
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 10px 0;
+      color: var(--primary-dark);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .stat-title {
+      color: var(--gray);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+    
+    .section-card {
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+    
+    .section-card:hover {
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .section-card h4 {
+      margin-bottom: 25px;
+      color: var(--primary-dark);
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-card h4 i {
+      margin-right: 12px;
+      font-size: 1.4rem;
+      color: var(--primary);
+    }
+    
+    .section-card h4::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
+    
+    .camera-container {
+      position: relative;
+      margin: 25px 0;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .camera-container video, .camera-container canvas {
+      width: 100%;
+      display: block;
+    }
+    
+    .face-overlay {
+      position: absolute;
+      border: 3px solid var(--success);
+      border-radius: 5px;
+      z-index: 10;
+    }
+    
+    .recognition-status {
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-align: center;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin: 20px 0;
+      background-color: #f0f5ff;
+      border-left: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .recognition-status i {
+      margin-right: 10px;
+      font-size: 1.4rem;
+    }
+    
+    .recognized {
+      background-color: #e8f5e9;
+      color: var(--success);
+      border-left-color: var(--success);
+    }
+    
+    .unknown {
+      background-color: #ffebee;
+      color: var(--danger);
+      border-left-color: var(--danger);
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      border-radius: 50px;
+      padding: 10px 25px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn i {
+      margin-right: 8px;
+      font-size: 1.1rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border: none;
+      box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(13, 71, 161, 0.4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #e53935);
+      border: none;
+      box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3);
+    }
+    
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #b71c1c, var(--danger));
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(198, 40, 40, 0.4);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #78909c, #546e7a);
+      border: none;
+      box-shadow: 0 4px 15px rgba(120, 144, 156, 0.3);
+    }
+    
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, #607d8b, #78909c);
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(120, 144, 156, 0.4);
+    }
+    
+    .btn-warning {
+      background: linear-gradient(135deg, var(--accent), #ff8f00);
+      border: none;
+      box-shadow: 0 4px 15px rgba(255, 111, 0, 0.3);
+    }
+    
+    .btn-warning:hover {
+      background: linear-gradient(135deg, #e65100, var(--accent));
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(255, 111, 0, 0.4);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #388e3c);
+      border: none;
+      box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+    }
+    
+    .table-responsive {
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table thead {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+    }
+    
+    .table thead th {
+      padding: 16px 15px;
+      font-weight: 500;
+      border: none;
+    }
+    
+    .table tbody tr {
+      transition: var(--transition);
+    }
+    
+    .table tbody tr:hover {
+      background-color: rgba(13, 71, 161, 0.03);
+      transform: translateX(5px);
+    }
+    
+    .table tbody td {
+      padding: 14px 15px;
+      vertical-align: middle;
+      border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .student-table img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid rgba(13, 71, 161, 0.1);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    
+    .badge {
+      padding: 8px 15px;
+      font-weight: 500;
+      border-radius: 50px;
+      font-size: 0.85rem;
+    }
+    
+    .bg-success {
+      background: linear-gradient(135deg, var(--success), #388e3c);
+    }
+    
+    .bg-danger {
+      background: linear-gradient(135deg, var(--danger), #e53935);
+    }
+    
+    .last-updated {
+      text-align: center;
+      font-size: 0.95rem;
+      margin: 30px 0;
+      color: var(--gray);
+      background: white;
+      padding: 12px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      max-width: 300px;
+      margin: 30px auto;
+    }
+    
+    .last-updated span {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .my-4 {
+      margin-top: 2rem !important;
+      margin-bottom: 2rem !important;
+    }
+    
+    .mb-3 {
+      margin-bottom: 1rem !important;
+    }
+    
+    .mb-4 {
+      margin-bottom: 1.5rem !important;
+    }
+    
+    #recognized-image {
+      max-width: 200px;
+      border-radius: var(--border-radius);
+      margin-top: 10px;
+      display: none;
+      border: 3px solid white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    .d-none {
+      display: none !important;
+    }
+    
+    .d-flex {
+      display: flex !important;
+    }
+    
+    .justify-content-between {
+      justify-content: space-between !important;
+    }
+    
+    .align-items-center {
+      align-items: center !important;
+    }
+    
+    .text-muted {
+      color: var(--gray) !important;
+    }
+    
+    .mt-2 {
+      margin-top: 0.5rem !important;
+    }
+    
+    @media (max-width: 768px) {
+      .header {
+        font-size: 1.8rem;
+        padding: 15px 0;
+      }
+      
+      .section-card {
+        padding: 20px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="header-content">
+      <i class="fas fa-user-check"></i> ATTENDANCE DASHBOARD
+    </div>
+  </div>
+
+  <div class="container-main">
+    <div class="stats-container">
+      <div class="stat-card">
+        <i class="fas fa-users stat-icon"></i>
+        <div class="stat-title">Total Students</div>
+        <div class="stat-value" id="total-students">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-user-check stat-icon"></i>
+        <div class="stat-title">Present Today</div>
+        <div class="stat-value" id="present-today">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-chart-line stat-icon"></i>
+        <div class="stat-title">Attendance Rate</div>
+        <div class="stat-value" id="attendance-rate">Loading...</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-face-smile stat-icon"></i>
+        <div class="stat-title">Recognized</div>
+        <div class="stat-value" id="recognized-count">Loading...</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h4><i class="fas fa-camera"></i> Face Recognition Attendance</h4>
+
+      <div class="camera-container">
+        <video id="attendance-video" autoplay muted playsinline></video>
+        <canvas id="attendance-canvas" style="display: none;"></canvas>
+      </div>
+
+      <div id="recognition-result" class="recognition-status">
+        <i class="fas fa-info-circle"></i> Ready to start recognition
+      </div>
+
+      <div class="action-buttons">
+        <button id="start-recognition-btn" class="btn btn-primary">
+          <i class="fas fa-play"></i> Start Recognition
+        </button>
+        <button id="stop-recognition-btn" class="btn btn-danger d-none">
+          <i class="fas fa-stop"></i> Stop Recognition
+        </button>
+        <button id="manual-attendance-btn" class="btn btn-secondary">
+          <i class="fas fa-pen"></i> Manual Attendance
+        </button>
+      </div>
+    </div>
+    
+    <div class="section-card">
+      <h4><i class="fas fa-list-check"></i> Attendance Records</h4>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Faculty</th>
+              <th>Class</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="student-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h4><i class="fas fa-camera-retro"></i> Save Your Face Information</h4>
+      <div class="text-center mb-4">
+        <button id="start-camera-btn" class="btn btn-primary mb-3">
+          <i class="fas fa-camera"></i> Start Camera
+        </button>
+        <button id="stop-camera-btn" class="btn btn-danger d-none">
+          <i class="fas fa-stop-circle"></i> Stop Camera
+        </button>
+      </div>
+
+      <div id="camera-section" class="d-none">
+        <video id="video" width="100%" autoplay muted class="border rounded mb-3"></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <div class="d-flex justify-content-between align-items-center">
+          <button id="capture-btn" class="btn btn-success">
+            <i class="fas fa-camera"></i> Capture Face
+          </button>
+          <span id="photo-count" class="text-muted">Captured: 0</span>
+        </div>
+      </div>
+
+      <div class="text-center my-4">
+        <button class="btn btn-warning" id="update-face-btn">
+          <i class="fas fa-sync-alt"></i> Update Face Information
+        </button>
+        <div id="update-loading" class="mt-2 text-muted" style="display: none;">
+          <i class="fas fa-spinner fa-spin"></i> Processing face embeddings...
+        </div>
+
+        <div class="text-center mt-4">
+          <img id="recognized-image" />
+        </div>
+      </div>
+    </div>
+
+    <div class="last-updated">
+      <i class="fas fa-clock"></i> Last updated: <span id="last-updated-time">--:--:--</span>
+    </div>
+  </div>
+
+  <script>
+    let studentData = [];
+    const recognizedImage = document.getElementById('recognized-image');
+    
+    async function fetchAttendanceStats() {
+      try {
+        const response = await fetch('/api/attendance-summary');
+        const data = await response.json();
+
+        const { total_students, rec_count, students } = data;
+        const attendanceRate = total_students > 0 ? Math.round((rec_count / total_students) * 100) : 0;
+
+        document.getElementById('total-students').textContent = total_students;
+        document.getElementById('present-today').textContent = rec_count;
+        document.getElementById('attendance-rate').textContent = `${attendanceRate}%`;
+        document.getElementById('recognized-count').textContent = rec_count;
+
+        studentData = students;
+        updateStudentTable(studentData);
+
+        document.getElementById("last-updated-time").textContent = new Date().toLocaleTimeString();
+      } catch (err) {
+        console.error("Failed to fetch attendance data:", err);
+      }
+    }
+
+    function updateStudentTable(students) {
+      const tableBody = document.getElementById('student-table-body');
+      tableBody.innerHTML = "";
+
+      students.forEach(s => {
+        let avatarSrc = 'default_avatar.jpg';
+        if (s.avatar_url) {
+          avatarSrc = s.avatar_url.startsWith('data:image') 
+            ? s.avatar_url 
+            : `data:image/jpeg;base64,${s.avatar_url}`;
+        }
+
+        tableBody.innerHTML += `
+          <tr>
+            <td><img src="${avatarSrc}" alt="${s.name}" /></td>
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.faculty}</td>
+            <td>${s.class}</td>
+            <td>${s.time}</td>
+            <td><span class="badge ${s.status === 'Present' ? 'bg-success' : 'bg-danger'}">${s.status}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    // Face recognition logic
+    let recognitionStream = null;
+    let recognitionInterval = null;
+      
+    if (recognitionInterval) {
+      clearInterval(recognitionInterval);
+    }
+      
+    document.getElementById('start-recognition-btn').addEventListener('click', () => {
+      document.getElementById('start-recognition-btn').classList.add('d-none');
+      document.getElementById('stop-recognition-btn').classList.remove('d-none');
+      document.getElementById('recognition-result').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting recognition...';
+
+      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        const video = document.getElementById('attendance-video');
+        video.srcObject = stream;
+        recognitionInterval = setInterval(() => sendFrameForRecognition(video), 3000);
+      }).catch(err => {
+        alert("Unable to access camera: " + err);
+      });
+    });
+
+    document.getElementById('stop-recognition-btn').addEventListener('click', () => {
+      const video = document.getElementById('attendance-video');
+      const stream = video.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+      }
+
+      if (recognitionInterval) {
+        clearInterval(recognitionInterval);
+      }
+
+      document.getElementById('start-recognition-btn').classList.remove('d-none');
+      document.getElementById('stop-recognition-btn').classList.add('d-none');
+      document.getElementById('recognition-result').innerHTML = '<i class="fas fa-pause-circle"></i> Recognition stopped';
+    });
+
+    document.getElementById('manual-attendance-btn').addEventListener('click', () => {
+      const name = prompt("Enter student name:");
+      if (name) {
+        const id = prompt("Enter student ID:");
+        if (id) {
+          studentData.unshift({
+            id: id,
+            name: name,
+            faculty: "Computer Engineer",
+            class: "IOT",
+            time: new Date().toLocaleTimeString(),
+            status: "Present"
+          });
+
+          updateStudentTable(studentData);
+
+          const presentCount = studentData.filter(s => s.status === "Present").length;
+          document.getElementById('present-today').textContent = presentCount;
+          document.getElementById('attendance-rate').textContent =
+            Math.round((presentCount / parseInt(document.getElementById('total-students').textContent)) * 100) + "%";
+        }
+      }
+    });
+
+    // Original face capture logic
+    let captureCount = 0;
+    let cameraStream = null;
+
+    document.getElementById('start-camera-btn').addEventListener('click', () => {
+      document.getElementById('camera-section').classList.remove('d-none');
+      document.getElementById('stop-camera-btn').classList.remove('d-none');
+      document.getElementById('start-camera-btn').classList.add('d-none');
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          cameraStream = stream;
+          document.getElementById('video').srcObject = stream;
+        })
+        .catch(err => {
+          alert("Unable to access camera: " + err);
+        });
+    });
+
+    document.getElementById('stop-camera-btn').addEventListener('click', () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        document.getElementById('video').srcObject = null;
+        cameraStream = null;
+      }
+
+      document.getElementById('camera-section').classList.add('d-none');
+      document.getElementById('stop-camera-btn').classList.add('d-none');
+      document.getElementById('start-camera-btn').classList.remove('d-none');
+      captureCount = 0;
+      document.getElementById('photo-count').textContent = "Captured: 0";
+    });
+    document.getElementById('capture-btn').addEventListener('click', () => {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL('image/jpeg'); // base64 format
+
+      // G?i ?nh v? backend
+      fetch('/upload_face', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imageData })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        captureCount++;
+        document.getElementById('photo-count').textContent = `Captured: ${captureCount}`;
+        alert("? Face image saved successfully!");
+      })
+      .catch(err => {
+        console.error("? Error uploading image:", err);
+        alert("? Failed to upload image.");
+      });
+    });
+
+    
+    document.getElementById('update-face-btn').addEventListener('click', () => {
+      if (!confirm("Are you sure you want to update all face embeddings?")) return;
+
+      const loadingMsg = document.getElementById('update-loading');
+      loadingMsg.style.display = 'block';
+
+      // Simulate processing
+      setTimeout(() => {
+        loadingMsg.style.display = 'none';
+        alert("Face embeddings updated successfully!");
+      }, 2000);
+    });
+
+    // Initialize page
+    window.onload = function () {
+      fetchAttendanceStats();
+
+      document.getElementById("last-updated-time").textContent = new Date().toLocaleTimeString();
+    };
+    
+
+    async function sendFrameForRecognition(videoEl) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoEl.videoWidth;
+      canvas.height = videoEl.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+      const imageBase64 = canvas.toDataURL("image/jpeg");
+
+      try {
+        const response = await fetch("/api/recognize-face", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageBase64 })
+        });
+
+        const result = await response.json();
+        const faces = result.faces || [];
+        const statusBox = document.getElementById("recognition-result");
+
+        if (result.image) {
+          const image = `data:image/jpeg;base64,${result.image}`;
+          document.getElementById("recognized-image").src = image;
+          recognizedImage.style.display = "inline";
+        }
+
+        if (faces.length === 0) {
+          statusBox.innerHTML = '<i class="fas fa-user-slash"></i> No faces detected';
+          statusBox.className = "recognition-status unknown";
+          recognizedImage.style.display = "none";
+          return;
+        }
+
+        let statusText = "";
+        let statusClass = "unknown";
+        let statusIcon = '<i class="fas fa-question-circle"></i>';
+
+        // Loop through all faces detected
+        for (const face of faces) {
+          const label = face.label;
+          const similarity = face.similarity;
+
+          if (label !== "Unknown" && similarity >= 0.4) {
+            const student = studentData.find(s => s.name === label);
+            if (student) {
+              // Update student data with the detected image
+              student.avatar_url = result.image || student.avatar_url; // Update avatar URL
+              student.status = "Present"; // Mark as present
+              student.time = new Date().toLocaleTimeString(); // Update the time of attendance
+
+              // Send to server for attendance record
+              await fetch('/api/students', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  mssv: student.id,
+                  ho_ten: student.name,
+                  khoa: student.faculty,
+                  lop: student.class,
+                  avatar_url: student.avatar_url || "",
+                  timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+                })
+              });
+              await fetchAttendanceStats();
+            }
+
+            statusText += ` ${label} (${(similarity * 100).toFixed(1)}%)`;
+            statusClass = "recognized";
+            statusIcon = '<i class="fas fa-check-circle"></i>';
+          } else {
+            statusText += ` Unknown (${(similarity * 100).toFixed(1)}%)`;
+          }
+        }
+
+        // Update UI
+        statusBox.innerHTML = `${statusIcon} ${statusText.trim()}`;
+        statusBox.className = `recognition-status ${statusClass}`;
+
+      } catch (err) {
+        console.error("Recognition error:", err);
+        document.getElementById("recognition-result").innerHTML = '<i class="fas fa-exclamation-triangle"></i> Recognition failed';
+      }
+    }
+  </script>
+</body>
+</html>
