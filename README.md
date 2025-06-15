@@ -39,10 +39,10 @@
 - Cảnh báo âm thanh + LED nếu phát hiện người lạ.
 - Gửi email cảnh báo nếu có truy cập không hợp lệ.
 
-## 🖥️ Giao diện
-| Web Login | Dashboard | Mở cửa thành công |
-|-----------|-----------|-------------------|
-| ![](assets/login.png) | ![](assets/dashboard.png) | ![](assets/open-success.png) |
+### 🖼️ Giao diện đăng nhập
+
+![Login Interface](login.png)
+
 
 ## 🛠️ Hướng dẫn cài đặt
 
@@ -100,10 +100,7 @@ FaceRecognition-Web-Door/
 - Tự động hóa đồng bộ lịch học từ hệ thống trường.
 - Tích hợp phân tích hành vi người lạ.
 
-## 👥 Nhóm thực hiện
-- **Phạm Trung Thắng – 22521341:** Backend, website, kết nối phần cứng.
-- **Lương Đăng Thiều – 22521397:** Mô hình nhận diện, tối ưu hóa, đánh giá.
 
 ## 🔗 Link demo & tài liệu
 - 📹 [Demo hệ thống](https://drive.google.com/drive/folders/1uzMyPyNPbreyRnMfIy9W09ZUboi8NxAS?usp=sharing)
-- 📄 [Báo cáo chi tiết](#)
+- 📄 [Báo cáo chi tiết](https://drive.google.com/drive/folders/1uzMyPyNPbreyRnMfIy9W09ZUboi8NxAS?usp=sharing)
